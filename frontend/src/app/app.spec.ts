@@ -30,7 +30,7 @@ describe('App', () => {
     await fixture.whenStable();
     expect(host.querySelector('.progress-compact')?.textContent).toContain('1 of 6 complete');
     expect(host.querySelector('#step-1')?.classList.contains('completed')).toBe(true);
-    expect(JSON.parse(localStorage.getItem('payout-workshop-progress-v1')!)).toEqual([1]);
+    expect(JSON.parse(localStorage.getItem('payout-angular-workshop-progress-v1')!)).toEqual([1]);
     host.querySelector<HTMLButtonElement>('#step-1 .complete-button')!.click();
     await fixture.whenStable();
     expect(host.querySelector('#step-1 .complete-button')?.getAttribute('aria-pressed')).toBe(
@@ -39,35 +39,65 @@ describe('App', () => {
   });
 
   it('restores progress and resets all steps', async () => {
-    localStorage.setItem('payout-workshop-progress-v1', '[1,3,6]');
+    localStorage.setItem('payout-angular-workshop-progress-v1', '[1,3,6]');
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     expect(fixture.componentInstance.completedSteps().size).toBe(3);
     fixture.componentInstance.resetProgress();
-    expect(localStorage.getItem('payout-workshop-progress-v1')).toBe('[]');
+    expect(localStorage.getItem('payout-angular-workshop-progress-v1')).toBe('[]');
   });
 
   it('reports corrupted progress instead of breaking the page', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    localStorage.setItem('payout-workshop-progress-v1', '{"invalid":true}');
+    localStorage.setItem('payout-angular-workshop-progress-v1', '{"invalid":true}');
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     expect(fixture.componentInstance.completedSteps().size).toBe(0);
     expect(fixture.componentInstance.toast()).toContain('could not be read');
   });
 
-  it('switches architecture details and keeps owner links in this repository', async () => {
+  it('starts fresh progress for the rewritten lessons', async () => {
+    localStorage.setItem('payout-workshop-progress-v1', '[1,2,3,4,5,6]');
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    expect(fixture.componentInstance.completedSteps().size).toBe(0);
+  });
+
+  it('shows an Angular guide without the previous service instructions', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const host: HTMLElement = fixture.nativeElement;
-    host.querySelectorAll<HTMLButtonElement>('.architecture-node')[2].click();
+    expect(host.querySelector('#overview .eyebrow')?.textContent?.trim()).toBe(
+      'HANDS-ON LAB · Angular',
+    );
+    expect(host.querySelectorAll('.lab-step')).toHaveLength(6);
+    expect(host.textContent).not.toMatch(
+      /\b(?:Java|Spring Boot|Redis|Postgres|Docker)\b|\.java\b|mvnw/i,
+    );
+    expect(host.querySelector<HTMLAnchorElement>('footer a')?.href).toBe(
+      `${fixture.componentInstance.repoUrl}/blob/${fixture.componentInstance.sourceRef}/docs/lab-guide.md`,
+    );
+  });
+
+  it('switches architecture details and links to the matching frontend sources', async () => {
+    const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    expect(host.querySelector('.architecture-detail')?.textContent).toContain(
-      'atomic SET-if-absent',
-    );
-    expect(host.querySelector<HTMLAnchorElement>('.architecture-detail a')?.href).toContain(
-      'copilot-training-naga/payout-copilot-workshop/blob/main/',
-    );
+    const host: HTMLElement = fixture.nativeElement;
+    const paths = [
+      'frontend/src/app/app.ts',
+      'frontend/src/app/app.html',
+      'frontend/src/app/app.ts',
+      'frontend/src/app/simulation.ts',
+      'frontend/src/app/simulation.spec.ts',
+      '.github/workflows/pages.yml',
+    ];
+    for (const [index, path] of paths.entries()) {
+      host.querySelectorAll<HTMLButtonElement>('.architecture-node')[index].click();
+      await fixture.whenStable();
+      expect(host.querySelector<HTMLAnchorElement>('.architecture-detail a')?.href).toBe(
+        `${fixture.componentInstance.repoUrl}/blob/${fixture.componentInstance.sourceRef}/${path}`,
+      );
+    }
   });
 
   it('blocks invalid simulator amounts and renders the valid delivery result', async () => {
@@ -96,7 +126,7 @@ describe('App', () => {
       clipboard: { writeText: vi.fn().mockRejectedValue(new Error('Denied')) },
     });
     const fixture = TestBed.createComponent(App);
-    await fixture.componentInstance.copyText('./mvnw test');
+    await fixture.componentInstance.copyText(fixture.componentInstance.testCommand);
     expect(fixture.componentInstance.toast()).toContain('Clipboard unavailable');
   });
 });

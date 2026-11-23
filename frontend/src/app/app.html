@@ -11,10 +11,10 @@
   >
     ☰
   </button>
-  <a class="brand" href="#overview" aria-label="Payout Webhook Lab home">
+  <a class="brand" href="#overview" aria-label="Angular Payout Lab home">
     <span class="brand-mark" aria-hidden="true">P</span>
     <span>
-      <strong>Payout Webhook Lab</strong>
+      <strong>Angular Payout Lab</strong>
       <small>GitHub Copilot workshop</small>
     </span>
   </a>
@@ -25,8 +25,12 @@
         ><span [style.width.%]="(completedSteps().size / 6) * 100"></span
       ></span>
     </div>
-    <a class="button button-quiet hide-mobile" [href]="repoUrl" target="_blank" rel="noreferrer"
-      >Repository <span aria-hidden="true">↗</span></a
+    <a
+      class="button button-quiet hide-mobile"
+      [href]="sourceTreeUrl"
+      target="_blank"
+      rel="noreferrer"
+      >Frontend source <span aria-hidden="true">↗</span></a
     >
   </div>
 </header>
@@ -87,11 +91,11 @@
 
       <div class="overview-grid">
         <div class="overview-copy">
-          <div class="eyebrow">Hands-on lab · Java 17 · Spring Boot 3</div>
-          <h1>Secure every payout.<br /><span>Process it exactly once.</span></h1>
+          <div class="eyebrow">HANDS-ON LAB · <span class="preserve-case">Angular</span></div>
+          <h1>Build with Angular.<br /><span>Learn by doing.</span></h1>
           <p>
-            Build a signed, idempotent payout webhook with GitHub Copilot. Follow one event from an
-            untrusted request to a durable ledger credit.
+            Explore a browser-only payout simulator and use GitHub Copilot to plan, build, and test
+            a standalone Angular application.
           </p>
           <div class="button-row">
             <a class="button button-primary" href="#step-1"
@@ -103,19 +107,19 @@
           </div>
         </div>
 
-        <div class="event-visual" aria-label="Example completed payout event">
+        <div class="event-visual" aria-label="Example completed payout simulation">
           <div class="visual-header">
-            <span><span class="pulse-dot"></span> Event received</span>
+            <span><span class="pulse-dot"></span> Simulation preview</span>
             <span class="status-chip success">COMPLETED</span>
           </div>
           <div class="amount-display"><span>$</span>25.00 <small>USD</small></div>
           <div class="account-route">
-            <div><small>FROM</small><strong>Payout API</strong></div>
+            <div><small>MODEL</small><strong>Sample payout</strong></div>
             <span class="route-line" aria-hidden="true">••••••▶</span>
-            <div><small>TO</small><strong>acct-usd-1</strong></div>
+            <div><small>RUNS IN</small><strong>Your browser</strong></div>
           </div>
           <div class="visual-result">
-            <span>Ledger balance</span>
+            <span>Example balance</span>
             <strong>$100.00 <span aria-hidden="true">→</span> $125.00</strong>
           </div>
         </div>
@@ -123,20 +127,20 @@
 
       <div class="acceptance-strip" aria-label="Lab acceptance criteria">
         <div>
-          <span class="metric-icon blue">401</span
-          ><span><strong>Reject</strong><small>Invalid signature</small></span>
+          <span class="metric-icon blue">TS</span
+          ><span><strong>Explore</strong><small>Angular components</small></span>
         </div>
         <div>
-          <span class="metric-icon teal">HMAC</span
-          ><span><strong>Verify</strong><small>Exact raw body</small></span>
+          <span class="metric-icon teal">SIG</span
+          ><span><strong>Model</strong><small>Signals and forms</small></span>
         </div>
         <div>
-          <span class="metric-icon amber">NX</span
-          ><span><strong>Deduplicate</strong><small>Atomic Redis lock</small></span>
+          <span class="metric-icon amber">TEST</span
+          ><span><strong>Test</strong><small>Frontend behavior</small></span>
         </div>
         <div>
-          <span class="metric-icon green">+25</span
-          ><span><strong>Credit</strong><small>Async ledger update</small></span>
+          <span class="metric-icon green">GH</span
+          ><span><strong>Publish</strong><small>GitHub Pages</small></span>
         </div>
       </div>
     </section>
@@ -145,7 +149,7 @@
       <div class="section-heading">
         <div>
           <div class="eyebrow">Your path</div>
-          <h2 id="lab-path-title">Six steps from red to green</h2>
+          <h2 id="lab-path-title">Six steps to an Angular feature</h2>
         </div>
         <button
           class="button button-quiet"
@@ -163,7 +167,7 @@
           <div class="step-heading">
             <div>
               <span class="step-label">SETUP · 10 MIN</span>
-              <h3>Verify the environment</h3>
+              <h3>Start the Angular app</h3>
             </div>
             <button
               class="complete-button"
@@ -175,8 +179,9 @@
             </button>
           </div>
           <p>
-            Confirm Java, Docker, Copilot CLI, Postgres, Redis, and the Spring Boot service before
-            changing code.
+            Install Git and Node.js 24.15 or later in the 24 LTS series with npm. From a new clone,
+            check out the source revision used by this site, install the frontend dependencies, and
+            start the app.
           </p>
           <div class="command-block">
             <div class="command-title">
@@ -190,15 +195,13 @@
                 <span aria-hidden="true">⧉</span> Copy
               </button>
             </div>
-            <pre><code>./scripts/verify-env.sh
-./scripts/dev-up.sh
-curl -s http://localhost:8080/actuator/health</code></pre>
+            <pre><code>{{ setupCommand }}</code></pre>
           </div>
           <div class="done-when">
             <strong>Done when</strong
             ><span
-              >The health response reports the application, database, and Redis as
-              <code>UP</code>.</span
+              >The Angular app is visible at <code>http://localhost:4200</code>. If you already have
+              a clone, fetch the source revision before creating your own branch.</span
             >
           </div>
         </div>
@@ -209,8 +212,8 @@ curl -s http://localhost:8080/actuator/health</code></pre>
         <div class="step-content">
           <div class="step-heading">
             <div>
-              <span class="step-label">SPEC · 10 MIN</span>
-              <h3>Read the executable specification</h3>
+              <span class="step-label">EXPLORE · 10 MIN</span>
+              <h3>Read the frontend code and tests</h3>
             </div>
             <button
               class="complete-button"
@@ -222,14 +225,44 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             </button>
           </div>
           <p>
-            Run the tests, observe the intentional red state, and read the four behaviors before
-            asking Copilot to implement anything.
+            Open the component, template, and simulator tests. In another terminal, run the tests
+            from the frontend directory to establish a passing baseline before changing anything.
           </p>
+          <div class="file-list">
+            <a [href]="sourceFileUrl('frontend/src/app/app.ts')" target="_blank" rel="noreferrer">
+              <span class="file-icon">TS</span
+              ><span><strong>app.ts</strong><small>Component and signals</small></span
+              ><span>↗</span>
+            </a>
+            <a [href]="sourceFileUrl('frontend/src/app/app.html')" target="_blank" rel="noreferrer">
+              <span class="file-icon">#</span
+              ><span><strong>app.html</strong><small>Template and bindings</small></span
+              ><span>↗</span>
+            </a>
+            <a
+              [href]="sourceFileUrl('frontend/src/app/simulation.ts')"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span class="file-icon">FX</span
+              ><span><strong>simulation.ts</strong><small>Browser-only model</small></span
+              ><span>↗</span>
+            </a>
+            <a
+              [href]="sourceFileUrl('frontend/src/app/simulation.spec.ts')"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span class="file-icon shield">✓</span
+              ><span><strong>simulation.spec.ts</strong><small>Model tests</small></span
+              ><span>↗</span>
+            </a>
+          </div>
           <div class="test-grid">
-            <span><i class="test-dot red"></i> Invalid signature → 401</span>
-            <span><i class="test-dot blue"></i> Valid payout → credit</span>
-            <span><i class="test-dot teal"></i> USD → EUR conversion</span>
-            <span><i class="test-dot amber"></i> Duplicate → exactly once</span>
+            <span><i class="test-dot red"></i> Invalid simulated signature → rejected</span>
+            <span><i class="test-dot blue"></i> Completed payout → balance updated</span>
+            <span><i class="test-dot teal"></i> Currency conversion → rounded result</span>
+            <span><i class="test-dot amber"></i> Duplicate → no second credit</span>
           </div>
           <div class="command-block compact">
             <div class="command-title">
@@ -237,18 +270,19 @@ curl -s http://localhost:8080/actuator/health</code></pre>
               ><button
                 type="button"
                 class="copy-button"
-                (click)="copyText('./mvnw test')"
+                (click)="copyText(testCommand)"
                 title="Copy command"
               >
                 <span aria-hidden="true">⧉</span> Copy
               </button>
             </div>
-            <pre><code>./mvnw test</code></pre>
+            <pre><code>{{ testCommand }}</code></pre>
           </div>
           <div class="done-when">
             <strong>Done when</strong
             ><span
-              >You can explain what each test expects without opening an implementation file.</span
+              >The tests pass, and you can explain how the template, component, and model fit
+              together.</span
             >
           </div>
         </div>
@@ -290,8 +324,8 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             <p>{{ planPrompt }}</p>
           </div>
           <div class="review-points">
-            <span>Does it identify the atomic Redis operation?</span
-            ><span>Does it preserve the asynchronous boundary?</span>
+            <span>Does it preserve workshop progress?</span
+            ><span>Does it handle processing and keyboard access?</span>
           </div>
         </div>
       </article>
@@ -302,7 +336,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           <div class="step-heading">
             <div>
               <span class="step-label">GUARDRAILS · 5 MIN</span>
-              <h3>See custom instructions in action</h3>
+              <h3>Review the frontend boundaries</h3>
             </div>
             <button
               class="complete-button"
@@ -314,35 +348,32 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             </button>
           </div>
           <p>
-            Inspect the repository-wide conventions and webhook-specific security rules that Copilot
-            applies automatically.
+            Review how the model handles amounts and how the component reports progress and errors.
+            Keep the simulation local to the browser.
           </p>
           <div class="file-list">
             <a
-              [href]="repoUrl + '/blob/main/.github/copilot-instructions.md'"
+              [href]="sourceFileUrl('frontend/src/app/simulation.ts')"
               target="_blank"
               rel="noreferrer"
               ><span class="file-icon">#</span
-              ><span
-                ><strong>copilot-instructions.md</strong><small>Repository conventions</small></span
+              ><span><strong>simulation.ts</strong><small>Fixed-point model</small></span
               ><span>↗</span></a
             >
             <a
-              [href]="repoUrl + '/blob/main/.github/instructions/payout-webhook.instructions.md'"
+              [href]="sourceFileUrl('frontend/src/app/app.spec.ts')"
               target="_blank"
               rel="noreferrer"
               ><span class="file-icon shield">✓</span
-              ><span
-                ><strong>payout-webhook.instructions.md</strong
-                ><small>Security and idempotency</small></span
+              ><span><strong>app.spec.ts</strong><small>Component behavior</small></span
               ><span>↗</span></a
             >
           </div>
           <div class="done-when">
             <strong>Look for</strong
             ><span
-              >Constant-time comparison, exact raw-body HMAC, atomic locking, and no secrets in
-              logs.</span
+              >Input validation, fixed-point money, accessible controls, and visible storage or
+              clipboard errors.</span
             >
           </div>
         </div>
@@ -370,8 +401,8 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             </button>
           </div>
           <p>
-            Give Agent Mode the outcome and constraints. Watch it gather context, make focused
-            edits, run tests, and respond to failures.
+            Try the optional reset-button exercise. Give Agent Mode the outcome and constraints,
+            review its changes, and run the frontend checks.
           </p>
           <div class="prompt-block">
             <div class="prompt-header">
@@ -385,17 +416,11 @@ curl -s http://localhost:8080/actuator/health</code></pre>
                 <span aria-hidden="true">⧉</span> Copy
               </button>
             </div>
-            <p>
-              Implement SignatureVerifier, IdempotencyService, PayoutEventListener,
-              WebhookController, and LedgerService so that every test in WebhookControllerTest
-              passes. Run <code>./mvnw test</code> after each change and keep iterating until all
-              tests are green. Do not modify the test file.
-            </p>
+            <p>{{ agentPrompt }}</p>
           </div>
           <div class="implementation-flow" aria-label="Implementation components">
-            <span>SignatureVerifier</span><b>+</b><span>IdempotencyService</span><b>+</b
-            ><span>WebhookController</span><b>+</b><span>EventListener</span><b>+</b
-            ><span>LedgerService</span>
+            <span>app.html</span><b>+</b><span>app.ts</span><b>+</b><span>simulation.ts</span
+            ><b>+</b><span>app.spec.ts</span>
           </div>
         </div>
       </article>
@@ -406,7 +431,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           <div class="step-heading">
             <div>
               <span class="step-label">DEBUG · 15 MIN</span>
-              <h3>Find a realistic defect</h3>
+              <h3>Debug a frontend defect</h3>
             </div>
             <button
               class="complete-button"
@@ -418,56 +443,56 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             </button>
           </div>
           <p>
-            Choose a challenge. Introduce the defect in one prompt, then start a fresh debugging
-            conversation to reproduce and repair it.
+            In your own working branch, choose a challenge. Introduce the defect, then start a fresh
+            debugging conversation to reproduce it, add or run a regression test, and repair it.
           </p>
           <div class="challenge-grid">
             <article class="challenge">
               <div>
-                <span class="issue-label security">SECURITY</span
-                ><span class="issue-number">#101</span>
+                <span class="issue-label security">ACCURACY</span
+                ><span class="issue-number">01</span>
               </div>
-              <h4>Signature timing leak</h4>
+              <h4>Currency rounding</h4>
               <p>
-                Replace constant-time digest comparison with <code>String#equals</code>, then ask
-                Copilot to find the review risk.
+                Change the rounding calculation in <code>simulation.ts</code>, then ask Copilot to
+                find why a converted balance is wrong.
               </p>
               <button
                 type="button"
                 class="button button-secondary challenge-button"
-                (click)="signatureHint.set(!signatureHint())"
-                [attr.aria-expanded]="signatureHint()"
-                aria-controls="signature-hint"
+                (click)="roundingHint.set(!roundingHint())"
+                [attr.aria-expanded]="roundingHint()"
+                aria-controls="rounding-hint"
               >
-                {{ signatureHint() ? 'Hide hint' : 'Reveal hint' }}
+                {{ roundingHint() ? 'Hide hint' : 'Reveal hint' }}
               </button>
-              <div class="hint" id="signature-hint" [hidden]="!signatureHint()">
-                Inspect how the computed and provided digests are compared. Equal content is not the
-                only security requirement.
+              <div class="hint" id="rounding-hint" [hidden]="!roundingHint()">
+                Compare the EUR and GBP examples in <code>simulation.spec.ts</code> and check the
+                integer rounding before formatting four decimal places.
               </div>
             </article>
             <article class="challenge">
               <div>
-                <span class="issue-label reliability">RELIABILITY</span
-                ><span class="issue-number">#102</span>
+                <span class="issue-label reliability">STATE</span
+                ><span class="issue-number">02</span>
               </div>
-              <h4>Idempotency race</h4>
+              <h4>Progress is not saved</h4>
               <p>
-                Replace atomic acquisition with check-then-set, then reproduce concurrent duplicate
-                credits.
+                Skip the save call in <code>toggleStep</code>, then reload the page and ask Copilot
+                to find the regression.
               </p>
               <button
                 type="button"
                 class="button button-secondary challenge-button"
-                (click)="redisHint.set(!redisHint())"
-                [attr.aria-expanded]="redisHint()"
-                aria-controls="redis-hint"
+                (click)="progressHint.set(!progressHint())"
+                [attr.aria-expanded]="progressHint()"
+                aria-controls="progress-hint"
               >
-                {{ redisHint() ? 'Hide hint' : 'Reveal hint' }}
+                {{ progressHint() ? 'Hide hint' : 'Reveal hint' }}
               </button>
-              <div class="hint" id="redis-hint" [hidden]="!redisHint()">
-                Two requests can both observe a missing key before either writes it. The fix must be
-                one Redis operation.
+              <div class="hint" id="progress-hint" [hidden]="!progressHint()">
+                Trace <code>toggleStep</code> to <code>saveProgress</code> and check the persistence
+                test in <code>app.spec.ts</code>.
               </div>
             </article>
           </div>
@@ -479,9 +504,10 @@ curl -s http://localhost:8080/actuator/health</code></pre>
       <div class="section-heading light-heading">
         <div>
           <div class="eyebrow">Interactive model</div>
-          <h2 id="simulator-title">Send a simulated webhook</h2>
+          <h2 id="simulator-title">Try the Angular simulation</h2>
           <p>
-            Explore expected behavior without connecting to an application or using a real secret.
+            Explore the form, signals, and result model. This simulation stays in your browser and
+            does not send a real payment or verify a signature.
           </p>
         </div>
         <span class="simulation-badge">Browser simulation</span>
@@ -531,7 +557,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           </div>
           <p id="amount-error" class="input-error" [hidden]="!amountError()">{{ amountError() }}</p>
           <div class="toggle-row">
-            <span><strong>Valid signature</strong><small>Simulate HMAC verification</small></span
+            <span><strong>Valid signature</strong><small>Choose the simulated outcome</small></span
             ><label class="switch"
               ><input
                 name="validSignature"
@@ -542,7 +568,9 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             ></label>
           </div>
           <div class="toggle-row">
-            <span><strong>Duplicate delivery</strong><small>Reuse the same event ID</small></span
+            <span
+              ><strong>Duplicate delivery</strong
+              ><small>Assume it was processed already</small></span
             ><label class="switch"
               ><input
                 name="duplicate"
@@ -558,7 +586,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             [disabled]="processing() || !!amountError()"
           >
             <span aria-hidden="true">▶</span>
-            {{ processing() ? 'Processing event...' : 'Send webhook' }}
+            {{ processing() ? 'Running simulation...' : 'Run simulation' }}
           </button>
           <p class="simulation-note">
             Each run models a separate delivery starting at 100 USD. Duplicate assumes the matching
@@ -570,8 +598,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           <div class="pipeline">
             @for (node of nodes(); track node.name) {
               <div [class]="'pipeline-node ' + node.state">
-                <span>{{ $index + 1 }}</span
-                ><strong>{{ node.name }}</strong
+                <span>{{ $index + 1 }}</span><strong>{{ node.name }}</strong
                 ><small>{{ node.label }}</small>
               </div>
               @if (!$last) {
@@ -583,7 +610,7 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             @if (result(); as result) {
               <div class="result-grid">
                 <div>
-                  <span>HTTP response</span
+                  <span>Simulated response</span
                   ><strong [class]="result.tone">{{ result.status }}</strong>
                 </div>
                 <div>
@@ -591,14 +618,14 @@ curl -s http://localhost:8080/actuator/health</code></pre>
                   ><strong [class]="result.tone">{{ result.signature }}</strong>
                 </div>
                 <div>
-                  <span>Idempotency</span
+                  <span>Duplicate check</span
                   ><strong
                     [class]="result.idempotency.includes('Duplicate') ? 'warn' : result.tone"
                     >{{ result.idempotency }}</strong
                   >
                 </div>
                 <div>
-                  <span>Ledger</span
+                  <span>Balance update</span
                   ><strong [class]="result.ledger.includes('Skipped') ? 'warn' : result.tone">{{
                     result.ledger
                   }}</strong>
@@ -610,12 +637,13 @@ curl -s http://localhost:8080/actuator/health</code></pre>
               </div>
             } @else {
               <div class="empty-result">
-                <span>{{ processing() ? '•••' : '▶' }}</span
-                ><strong>{{ processing() ? 'Tracing delivery' : 'Ready for an event' }}</strong
+                <span>{{ processing() ? '•••' : '▶' }}</span><strong>{{
+                  processing() ? 'Running the model' : 'Ready to simulate'
+                }}</strong
                 ><small>{{
                   processing()
-                    ? 'Following the event through each boundary.'
-                    : 'Configure the delivery and select Send webhook.'
+                    ? 'Calculating the simulated outcome.'
+                    : 'Choose the inputs and select Run simulation.'
                 }}</small>
               </div>
             }
@@ -631,9 +659,9 @@ curl -s http://localhost:8080/actuator/health</code></pre>
     >
       <div class="section-heading">
         <div>
-          <div class="eyebrow">System map</div>
-          <h2 id="architecture-title">One event, six trust boundaries</h2>
-          <p>Select a component to inspect its responsibility and primary risk.</p>
+          <div class="eyebrow">Frontend map</div>
+          <h2 id="architecture-title">Inside the Angular application</h2>
+          <p>Select an area to inspect its responsibility and open the matching source file.</p>
         </div>
       </div>
       <div class="architecture-flow" aria-label="Architecture components">
@@ -645,8 +673,9 @@ curl -s http://localhost:8080/actuator/health</code></pre>
             type="button"
             (click)="selectedArchitecture.set(component)"
           >
-            <span [class]="'architecture-icon ' + component.color">{{ component.icon }}</span
-            ><strong>{{ component.label }}</strong
+            <span [class]="'architecture-icon ' + component.color">{{
+              component.icon
+            }}</span><strong>{{ component.label }}</strong
             ><small>{{ component.subtitle }}</small>
           </button>
           @if (!$last) {
@@ -660,19 +689,12 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           ><strong>{{ selectedArchitecture().responsibility }}</strong>
         </div>
         <div>
-          <span class="detail-label">PRIMARY RISK</span
+          <span class="detail-label">WATCH FOR</span
           ><strong>{{ selectedArchitecture().risk }}</strong>
         </div>
         <div>
-          <span class="detail-label">OWNER</span
-          ><a
-            [href]="
-              repoUrl +
-              '/blob/main/src/main/java/com/payout/workshop/payout/' +
-              selectedArchitecture().path
-            "
-            target="_blank"
-            rel="noreferrer"
+          <span class="detail-label">SOURCE</span
+          ><a [href]="sourceFileUrl(selectedArchitecture().path)" target="_blank" rel="noreferrer"
             >{{ selectedArchitecture().file }} ↗</a
           >
         </div>
@@ -682,11 +704,11 @@ curl -s http://localhost:8080/actuator/health</code></pre>
     <section id="manual" class="section manual-section" aria-labelledby="manual-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">Real stack verification</div>
-          <h2 id="manual-title">Prove it outside the test container</h2>
+          <div class="eyebrow">Hands-on checks</div>
+          <h2 id="manual-title">Try it locally</h2>
           <p>
-            The script rebuilds the application, seeds a local account, signs an event, sends it
-            twice, and checks Postgres and Redis.
+            Run the Angular app, exercise the simulator, and use another terminal in the frontend
+            directory to run the checks used for GitHub Pages.
           </p>
         </div>
       </div>
@@ -695,54 +717,56 @@ curl -s http://localhost:8080/actuator/health</code></pre>
           <div>
             <span>1</span>
             <p>
-              <strong>Recreate local services</strong
-              ><small>Clean Postgres and Redis containers</small>
+              <strong>Start the app</strong
+              ><small>Run npm start from frontend and open localhost:4200</small>
             </p>
           </div>
           <div>
             <span>2</span>
-            <p><strong>Seed account</strong><small>acct-manual-1 · 100.0000 USD</small></p>
+            <p>
+              <strong>Choose a payout</strong
+              ><small>COMPLETED · 25.00 USD · valid signature · not duplicate</small>
+            </p>
           </div>
           <div>
             <span>3</span>
-            <p><strong>Send signed payout</strong><small>COMPLETED · 25.00 USD</small></p>
+            <p>
+              <strong>Run the simulation</strong
+              ><small>Example balance changes from 100.0000 to 125.0000 USD</small>
+            </p>
           </div>
           <div>
             <span>4</span>
-            <p><strong>Send duplicate</strong><small>Same event ID · no second credit</small></p>
+            <p>
+              <strong>Try a duplicate</strong
+              ><small>Turn on duplicate delivery; the model skips a second credit</small>
+            </p>
           </div>
           <div>
             <span>5</span>
             <p>
-              <strong>Verify durable state</strong
-              ><small>Balance 125.0000 · Redis key present</small>
+              <strong>Check progress</strong
+              ><small>Mark a step complete, reload, and confirm it stays complete</small>
             </p>
           </div>
         </div>
         <div class="manual-command">
           <div class="terminal-window">
             <div class="terminal-bar">
-              <span><i></i><i></i><i></i></span><strong>manual verification</strong>
+              <span><i></i><i></i><i></i></span><strong>frontend checks</strong>
             </div>
-            <pre><code><span class="terminal-prompt">$</span> ./scripts/manual-webhook-test.sh
-
-<span class="terminal-muted">Seeding acct-manual-1...</span>
-<span class="terminal-success">OK</span> first delivery → 125.0000
-<span class="terminal-success">OK</span> duplicate → 125.0000
-<span class="terminal-success">OK</span> Redis key found
-
-<span class="terminal-success">Manual webhook verification passed.</span></code></pre>
+            <pre><code>{{ verificationCommand }}</code></pre>
           </div>
           <button
             class="button button-primary full-width"
             type="button"
-            (click)="copyText('./scripts/manual-webhook-test.sh')"
+            (click)="copyText(verificationCommand)"
           >
-            <span aria-hidden="true">⧉</span> Copy verification command
+            <span aria-hidden="true">⧉</span> Copy frontend checks
           </button>
           <p class="data-warning">
-            <span aria-hidden="true">!</span> This script recreates local Compose containers and
-            removes their current data.
+            <span aria-hidden="true">!</span> The simulator is an educational model. Running it does
+            not send an API request or move money.
           </p>
         </div>
       </div>
@@ -762,57 +786,76 @@ curl -s http://localhost:8080/actuator/health</code></pre>
       <div class="accordion" data-accordion>
         <details>
           <summary>
-            <span class="error-code">5432</span
+            <span class="error-code">NODE</span
             ><span
-              ><strong>Connection to localhost refused</strong
-              ><small>Postgres is not accepting connections.</small></span
-            ><span class="chevron">⌄</span>
-          </summary>
-          <div>
-            <p>Start the managed services, wait for health checks, and retry.</p>
-            <code>./scripts/dev-up.sh</code>
-          </div>
-        </details>
-        <details>
-          <summary>
-            <span class="error-code red-code">401</span
-            ><span
-              ><strong>Webhook signature rejected</strong
-              ><small>The body and HMAC do not match.</small></span
+              ><strong>Unsupported Node.js version</strong
+              ><small>The Angular tools cannot start.</small></span
             ><span class="chevron">⌄</span>
           </summary>
           <div>
             <p>
-              Sign the exact bytes sent by curl. Even whitespace or a regenerated timestamp changes
-              the digest.
+              Install Node.js 24.15 or later in the 24 LTS series, open a new terminal, and check
+              the active version.
             </p>
-            <code>./scripts/manual-webhook-test.sh</code>
+            <code>node --version</code>
           </div>
         </details>
         <details>
           <summary>
-            <span class="error-code amber-code">zsh</span
+            <span class="error-code red-code">NPM</span
             ><span
-              ><strong>read: -p: no coprocess</strong
-              ><small>A Bash prompt flag was used in zsh.</small></span
+              ><strong>Dependencies did not install</strong
+              ><small>The install command fails before the app starts.</small></span
             ><span class="chevron">⌄</span>
           </summary>
           <div>
-            <p>Use zsh prompt syntax and keep the secret out of shell history.</p>
-            <code>read -s "WEBHOOK_SECRET?Webhook secret: "</code>
+            <p>
+              Confirm your Node.js version and network connection, then run the lockfile install
+              from the frontend directory.
+            </p>
+            <code>cd frontend &amp;&amp; npm ci</code>
           </div>
         </details>
         <details>
           <summary>
-            <span class="error-code teal-code">DB</span
+            <span class="error-code amber-code">4200</span
             ><span
-              ><strong>account_balance does not exist</strong
-              ><small>The fresh database has not been initialized.</small></span
+              ><strong>Port 4200 is already in use</strong
+              ><small>Another process is using the development port.</small></span
             ><span class="chevron">⌄</span>
           </summary>
           <div>
-            <p>Start the Spring Boot application. Hibernate creates the schema during startup.</p>
-            <code>./scripts/dev-up.sh</code>
+            <p>Run the app on another port from the frontend directory, then open that URL.</p>
+            <code>npm start -- --port 4201</code>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code teal-code">UI</span
+            ><span
+              ><strong>Progress or copying is unavailable</strong
+              ><small>Browser storage or clipboard access is blocked.</small></span
+            ><span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>
+              Allow storage and clipboard access for this site. Use HTTPS or localhost for clipboard
+              access.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code">PATH</span>
+            <span
+              ><strong>Pages assets do not load</strong
+              ><small>The build uses the wrong base path.</small></span
+            >
+            <span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>Build from the frontend directory with the repository path as the base URL.</p>
+            <code>npm run build -- --base-href /payout-copilot-workshop/</code>
           </div>
         </details>
       </div>
@@ -820,13 +863,15 @@ curl -s http://localhost:8080/actuator/health</code></pre>
 
     <footer>
       <div>
-        <strong>Payout Webhook Lab</strong
-        ><span>Built for learning. No production data or secrets are used.</span>
+        <strong>Angular Payout Lab</strong
+        ><span>Built for learning. The simulator uses example data only.</span>
       </div>
       <div>
-        <a [href]="repoUrl + '/blob/main/docs/lab-guide.md'" target="_blank" rel="noreferrer"
-          >Lab guide ↗</a
-        ><a [href]="repoUrl" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a [href]="sourceFileUrl('docs/lab-guide.md')" target="_blank" rel="noreferrer"
+          >Workshop guide ↗</a
+        ><a [href]="sourceFileUrl('frontend/README.md')" target="_blank" rel="noreferrer"
+          >Frontend README ↗</a
+        ><a [href]="sourceTreeUrl" target="_blank" rel="noreferrer">Frontend source ↗</a>
       </div>
     </footer>
   </main>

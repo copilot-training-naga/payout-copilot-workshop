@@ -10,6 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Currency, PayoutStatus, SimulationResult, simulateWebhook } from './simulation';
 
+declare const __WORKSHOP_SOURCE_REF__: string;
+
 @Component({
   imports: [FormsModule],
   selector: 'app-root',
@@ -17,98 +19,108 @@ import { Currency, PayoutStatus, SimulationResult, simulateWebhook } from './sim
 })
 export class App {
   readonly repoUrl = 'https://github.com/copilot-training-naga/payout-copilot-workshop';
+  readonly sourceRef =
+    typeof __WORKSHOP_SOURCE_REF__ === 'string'
+      ? __WORKSHOP_SOURCE_REF__
+      : 'v-nagarajumatta-angular-workshop-site';
+  readonly sourceTreeUrl = `${this.repoUrl}/tree/${encodeURIComponent(this.sourceRef)}/frontend`;
   readonly stepLabels = [
-    'Verify environment',
-    'Read the spec',
-    'Plan the change',
-    'Apply guardrails',
+    'Start the app',
+    'Explore the code',
+    'Plan a change',
+    'Review the model',
     'Build and test',
-    'Debug a defect',
+    'Debug the UI',
   ];
   readonly exploreLinks = [
-    { id: 'simulator', icon: '▶', label: 'Webhook simulator' },
-    { id: 'architecture', icon: '⌘', label: 'Architecture' },
-    { id: 'manual', icon: '›_', label: 'Manual verification' },
+    { id: 'simulator', icon: '▶', label: 'Payout simulator' },
+    { id: 'architecture', icon: '⌘', label: 'Angular architecture' },
+    { id: 'manual', icon: '›_', label: 'Try it locally' },
     { id: 'troubleshooting', icon: '?', label: 'Troubleshooting' },
   ];
-  readonly setupCommand =
-    './scripts/verify-env.sh\n./scripts/dev-up.sh\ncurl -s http://localhost:8080/actuator/health';
+  private readonly checkoutRef = /^[0-9a-f]{40,64}$/i.test(this.sourceRef)
+    ? this.sourceRef
+    : `origin/${this.sourceRef}`;
+  readonly setupCommand = `git clone ${this.repoUrl}.git\ncd payout-copilot-workshop\ngit switch -c angular-lab ${this.checkoutRef}\ncd frontend\nnpm ci\nnpm start`;
+  readonly testCommand = 'npm test -- --watch=false';
+  readonly verificationCommand =
+    'npm test -- --watch=false\nnpm run build -- --base-href /payout-copilot-workshop/';
   readonly planPrompt =
-    'We need to implement WebhookController, SignatureVerifier, IdempotencyService, PayoutEventListener, and LedgerService so that WebhookControllerTest passes. Propose the sequence of changes and flag any design risks before writing code.';
+    'Plan a Reset simulation button for frontend/src/app/app.html and frontend/src/app/app.ts. It should restore the simulator inputs and results to their initial state without clearing workshop progress. Consider processing state, accessibility, and tests. Do not write code yet.';
   readonly agentPrompt =
-    'Implement SignatureVerifier, IdempotencyService, PayoutEventListener, WebhookController, and LedgerService so that every test in WebhookControllerTest passes. Run ./mvnw test after each change and keep iterating until all tests are green. Do not modify the test file.';
+    'Implement a Reset simulation button in frontend/src/app/app.html and frontend/src/app/app.ts. Restore COMPLETED, 25.00 USD, valid signature on, duplicate off, and the waiting pipeline; clear the result without changing workshop progress. Disable reset while processing. Add focused tests in frontend/src/app/app.spec.ts, then run npm test -- --watch=false and npm run build from frontend. Keep the simulation browser-only.';
   readonly architectures = [
     {
-      id: 'controller',
-      icon: 'HTTP',
+      id: 'component',
+      icon: 'TS',
       color: 'blue',
-      label: 'Controller',
-      subtitle: 'Shape and dispatch',
+      label: 'Component',
+      subtitle: 'Handle interactions',
       responsibility:
-        'Reject untrusted requests, parse verified payloads, and publish accepted work.',
-      risk: 'Doing ledger or FX work synchronously delays the webhook response.',
-      file: 'WebhookController.java',
-      path: 'webhook/WebhookController.java',
+        'The standalone App component connects user actions to the simulator, navigation, and progress.',
+      risk: 'Changes to one interaction should not unexpectedly reset another part of the page.',
+      file: 'app.ts',
+      path: 'frontend/src/app/app.ts',
     },
     {
-      id: 'signature',
-      icon: 'HMAC',
+      id: 'template',
+      icon: 'HTML',
       color: 'red',
-      label: 'Signature',
-      subtitle: 'Authenticate body',
+      label: 'Template',
+      subtitle: 'Render the UI',
       responsibility:
-        'Compute HMAC-SHA256 over the exact raw request body and compare digests safely.',
-      risk: 'Parsing before verification or using a non-constant-time comparison weakens authentication.',
-      file: 'SignatureVerifier.java',
-      path: 'webhook/SignatureVerifier.java',
+        'Angular bindings connect the workshop, form controls, and results to component state.',
+      risk: 'Controls and status updates need clear labels and accessible feedback.',
+      file: 'app.html',
+      path: 'frontend/src/app/app.html',
     },
     {
-      id: 'redis',
-      icon: 'NX',
+      id: 'signals',
+      icon: 'SIG',
       color: 'amber',
-      label: 'Redis',
-      subtitle: 'Claim event ID',
+      label: 'Signals',
+      subtitle: 'Manage state',
       responsibility:
-        'Claim each event ID exactly once with an atomic SET-if-absent operation and TTL.',
-      risk: 'A separate read and write allows concurrent deliveries to both enter processing.',
-      file: 'IdempotencyService.java',
-      path: 'webhook/IdempotencyService.java',
+        'Signals track form values, processing state, results, and six-step progress.',
+      risk: 'Inconsistent state updates can leave the display out of sync with user actions.',
+      file: 'app.ts',
+      path: 'frontend/src/app/app.ts',
     },
     {
-      id: 'event',
-      icon: 'ASYNC',
-      color: 'teal',
-      label: 'Event',
-      subtitle: 'Leave request thread',
-      responsibility:
-        'Move accepted ledger work off the HTTP request thread and process completed payouts.',
-      risk: 'Synchronous work can cause webhook sender timeouts and unnecessary redelivery.',
-      file: 'PayoutEventListener.java',
-      path: 'webhook/PayoutEventListener.java',
-    },
-    {
-      id: 'ledger',
+      id: 'model',
       icon: 'FX',
-      color: 'green',
-      label: 'Ledger',
-      subtitle: 'Convert and credit',
+      color: 'teal',
+      label: 'Model',
+      subtitle: 'Calculate outcomes',
       responsibility:
-        'Find the account, convert currency when required, and apply the credit transactionally.',
-      risk: 'Floating-point money or missing transaction boundaries can corrupt balance calculations.',
-      file: 'LedgerService.java',
-      path: 'ledger/LedgerService.java',
+        'A browser-only function models payout outcomes and converts amounts with fixed-point arithmetic.',
+      risk: 'Floating-point rounding or invalid input can produce incorrect displayed balances.',
+      file: 'simulation.ts',
+      path: 'frontend/src/app/simulation.ts',
     },
     {
-      id: 'postgres',
-      icon: 'DB',
-      color: 'navy',
-      label: 'Postgres',
-      subtitle: 'Persist balance',
+      id: 'tests',
+      icon: 'TEST',
+      color: 'green',
+      label: 'Tests',
+      subtitle: 'Check behavior',
       responsibility:
-        'Persist balances and use optimistic versioning to detect conflicting updates.',
-      risk: 'Concurrent updates without version checks can silently overwrite a valid balance.',
-      file: 'AccountBalance.java',
-      path: 'ledger/AccountBalance.java',
+        'Frontend tests cover simulator scenarios, validation, progress, and UI interactions.',
+      risk: 'Untested edge cases can hide incorrect outcomes or regressions.',
+      file: 'simulation.spec.ts',
+      path: 'frontend/src/app/simulation.spec.ts',
+    },
+    {
+      id: 'deploy',
+      icon: 'GH',
+      color: 'navy',
+      label: 'Pages',
+      subtitle: 'Build and publish',
+      responsibility:
+        'GitHub Actions installs dependencies, runs tests, and publishes the Angular build to Pages.',
+      risk: 'An incorrect base path can prevent assets from loading on the published site.',
+      file: 'pages.yml',
+      path: '.github/workflows/pages.yml',
     },
   ];
   readonly selectedArchitecture = signal(this.architectures[0]);
@@ -116,8 +128,8 @@ export class App {
   readonly activeSection = signal('overview');
   readonly completedSteps = signal<ReadonlySet<number>>(new Set());
   readonly toast = signal('');
-  readonly signatureHint = signal(false);
-  readonly redisHint = signal(false);
+  readonly roundingHint = signal(false);
+  readonly progressHint = signal(false);
   readonly status = signal<PayoutStatus>('COMPLETED');
   readonly amount = signal('25.00');
   readonly currency = signal<Currency>('USD');
@@ -131,12 +143,12 @@ export class App {
       : 'Enter a positive amount with at most two decimal places (maximum 9,999,999,999.99).',
   );
   readonly nodes = signal([
-    { name: 'Request', state: '', label: 'Waiting' },
+    { name: 'Input', state: '', label: 'Waiting' },
     { name: 'Signature', state: '', label: 'Waiting' },
-    { name: 'Redis', state: '', label: 'Waiting' },
-    { name: 'Ledger', state: '', label: 'Waiting' },
+    { name: 'Duplicate', state: '', label: 'Waiting' },
+    { name: 'Balance', state: '', label: 'Waiting' },
   ]);
-  private readonly progressKey = 'payout-workshop-progress-v1';
+  private readonly progressKey = 'payout-angular-workshop-progress-v1';
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
   private toastTimer?: ReturnType<typeof setTimeout>;
@@ -194,6 +206,10 @@ export class App {
     return this.completedSteps().has(step) ? '✓ Completed' : '○ Mark complete';
   }
 
+  sourceFileUrl(path: string) {
+    return `${this.repoUrl}/blob/${encodeURIComponent(this.sourceRef)}/${path}`;
+  }
+
   resetProgress() {
     this.completedSteps.set(new Set());
     if (this.saveProgress()) this.showToast('Workshop progress reset');
@@ -236,10 +252,10 @@ export class App {
     this.processing.set(true);
     this.result.set(null);
     this.nodes.set([
-      { name: 'Request', state: 'active', label: 'Received' },
+      { name: 'Input', state: 'active', label: 'Received' },
       { name: 'Signature', state: '', label: 'Waiting' },
-      { name: 'Redis', state: '', label: 'Waiting' },
-      { name: 'Ledger', state: '', label: 'Waiting' },
+      { name: 'Duplicate', state: '', label: 'Waiting' },
+      { name: 'Balance', state: '', label: 'Waiting' },
     ]);
     this.simulationTimer = setTimeout(() => {
       this.nodes.update((nodes) =>
@@ -254,23 +270,23 @@ export class App {
       this.simulationTimer = setTimeout(() => {
         this.result.set(simulateWebhook(delivery));
         this.nodes.set([
-          { name: 'Request', state: 'success', label: 'Accepted' },
+          { name: 'Input', state: 'success', label: 'Accepted' },
           {
             name: 'Signature',
             state: delivery.validSignature ? 'success' : 'error',
-            label: delivery.validSignature ? 'Verified' : 'Rejected',
+            label: delivery.validSignature ? 'Valid' : 'Rejected',
           },
           {
-            name: 'Redis',
+            name: 'Duplicate',
             state: !delivery.validSignature ? '' : delivery.duplicate ? 'stopped' : 'success',
             label: !delivery.validSignature
               ? 'Not reached'
               : delivery.duplicate
                 ? 'Duplicate'
-                : 'Acquired',
+                : 'New',
           },
           {
-            name: 'Ledger',
+            name: 'Balance',
             state:
               !delivery.validSignature || delivery.duplicate
                 ? ''

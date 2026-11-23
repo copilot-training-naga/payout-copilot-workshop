@@ -13,13 +13,17 @@ describe('webhook educational model', () => {
     expect(simulateWebhook({ ...delivery, validSignature: false, duplicate: true })).toMatchObject({
       status: '401 Unauthorized',
       idempotency: 'Not checked',
-      ledger: 'Not published',
+      ledger: 'Not applied',
       balance: '100.0000 unchanged',
     });
   });
 
   it('credits a completed payout using exact decimal arithmetic', () => {
-    expect(simulateWebhook(delivery).balance).toBe('100.0000 → 125.0000 USD');
+    expect(simulateWebhook(delivery)).toMatchObject({
+      signature: 'Valid',
+      idempotency: 'New delivery',
+      balance: '100.0000 → 125.0000 USD',
+    });
     expect(simulateWebhook({ ...delivery, amount: '0.01' }).balance).toBe(
       '100.0000 → 100.0100 USD',
     );

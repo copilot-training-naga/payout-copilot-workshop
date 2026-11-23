@@ -23,6 +23,9 @@
 app-root {
   display: block;
 }
+.eyebrow .preserve-case {
+  text-transform: none;
+}
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 78px;
