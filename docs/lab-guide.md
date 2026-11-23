@@ -1,210 +1,122 @@
-# Lab Exercise Guide
+# Angular Payout Lab: Workshop Guide
 
-Goal: implement a secure, idempotent payout webhook endpoint using Copilot
-Plan Mode, Custom Instructions, and Agent Mode — until `./mvnw test` is fully
-green.
+Explore a standalone Angular application and use GitHub Copilot to plan,
+implement, test, and debug a small frontend feature. The payout simulator is
+an educational model: it runs in the browser with example data and does not
+send an API request, verify a real signature, or move money.
 
-## 0. Confirm your environment
+## 1. Start the application
 
-```bash
-./scripts/verify-env.sh
-./scripts/dev-up.sh
-```
-
-Check the health endpoint:
-
-```bash
-curl -s http://localhost:8080/actuator/health
-```
-
-Or just open [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
-in your browser for a quick visual check.
-
-You should see `"status":"UP"` with `db` and `redis` both `UP` - this confirms
-Postgres, Redis, and the app itself are all wired up correctly *before* you
-touch any code. Then run the test suite:
+Install Git, Node.js 24.15 or later in the 24 LTS series, and npm. Use the
+setup commands on the [published workshop](https://copilot-training-naga.github.io/payout-copilot-workshop/#step-1)
+to clone the repository and create your own branch from the revision that
+produced the site. From that checkout:
 
 ```bash
-./mvnw test
+cd frontend
+npm ci
+npm start
 ```
 
-If a managed service goes down, rerun `./scripts/dev-up.sh`. The script keeps
-healthy services running and recovers missing ones. If Spring Boot cannot
-start, inspect `.run/payout-service.log`.
+Open [http://localhost:4200](http://localhost:4200). Leave the development
+server running and use another terminal in `frontend/` for the remaining
+commands.
 
-When you finish working, stop all managed services gracefully:
+## 2. Explore the code and tests
+
+Read these frontend files:
+
+- [`app.ts`](../frontend/src/app/app.ts): the standalone component and signals.
+- [`app.html`](../frontend/src/app/app.html): the workshop, form, and bindings.
+- [`simulation.ts`](../frontend/src/app/simulation.ts): payout outcomes and
+  fixed-point currency conversion.
+- [`app.spec.ts`](../frontend/src/app/app.spec.ts) and
+  [`simulation.spec.ts`](../frontend/src/app/simulation.spec.ts): component
+  and model behavior.
+
+Establish a passing baseline:
 
 ```bash
-./scripts/dev-down.sh
+npm test -- --watch=false
 ```
 
-You should see failures — `SignatureVerifier`, `IdempotencyService`,
-`PayoutEventListener`, `WebhookController`, and `LedgerService` are stubs that
-throw `UnsupportedOperationException`. That's your starting point.
+Check how the tests cover invalid simulated signatures, completed payouts,
+other statuses, duplicate delivery, conversion, input validation, and saved
+progress.
 
-## 1. Read the spec (it's the test file)
+## 3. Plan a change with Copilot
 
-Open [`WebhookControllerTest`](../src/test/java/com/payout/workshop/payout/webhook/WebhookControllerTest.java).
-Don't edit it. It defines exactly what "done" means:
-
-- `rejectsRequestWithInvalidSignature`
-- `acceptsValidSignatureAndCreditsBalance`
-- `convertsCurrencyBeforeCrediting`
-- `duplicateDeliveryIsAppliedExactlyOnce`
-
-## 2. Plan Mode
-
-In Copilot Chat, switch to **Plan Mode** and ask:
-
-```
-We need to implement WebhookController, SignatureVerifier, IdempotencyService,
-PayoutEventListener, and LedgerService so that WebhookControllerTest passes.
-Propose the sequence of changes and flag any design risks before writing code.
-```
-
-Read the plan. Does it mention the atomic Redis lock? The async boundary?
-Ask follow-up questions in Plan Mode before letting anything touch code.
-
-## 3. Look at the guardrails already in the repo
-
-Open [`.github/instructions/payout-webhook.instructions.md`](../.github/instructions/payout-webhook.instructions.md).
-This applies automatically to files matching `**/*Webhook*.java` and
-`**/webhook/**/*.java` — you don't have to repeat these rules in your prompts.
-
-## 4. Agent Mode — build it
-
-Switch to **Agent Mode** and give it the task:
-
-```
-Implement SignatureVerifier, IdempotencyService, PayoutEventListener,
-WebhookController, and LedgerService so that every test in
-WebhookControllerTest passes. Run ./mvnw test after each change and keep
-iterating until all tests are green. Do not modify the test file.
-```
-
-Let it run. Watch what it does with the security/idempotency instructions
-without being re-told. If it gets stuck on one test, you can narrow the ask:
-
-```
-Only rejectsRequestWithInvalidSignature is failing. Show me the current
-SignatureVerifier implementation and fix just that test.
-```
-
-## 5. Verify the complete webhook flow manually
-
-Passing the automated tests proves the implementation behaves correctly in the
-Testcontainers environment. Now verify the complete workflow against the local
-development stack:
-
-```bash
-./scripts/manual-webhook-test.sh
-```
-
-Run this command from the repository root.
-
-> **Important:** The script restarts the local workshop stack. This removes the
-> current local Postgres and Redis containers and their data before creating a
-> clean environment. Do not run it against infrastructure containing data you
-> need to preserve.
-
-The script performs the following steps:
-
-1. Stops and recreates the local Postgres and Redis services.
-2. Builds and starts the Spring Boot application from the current source.
-3. Seeds `acct-manual-1` with a `100.0000 USD` balance.
-4. Creates a `COMPLETED` payout webhook for `25.00 USD`.
-5. Signs the exact raw JSON body using the configured webhook secret.
-6. Sends the webhook and waits for the asynchronous ledger update.
-7. Sends the same event again to simulate a duplicate delivery.
-8. Confirms that the duplicate does not credit the account twice.
-9. Confirms that Redis contains the event's idempotency key.
-10. Displays the final Postgres account row.
-
-Expected final output includes:
+In Copilot Plan Mode, use the following prompt:
 
 ```text
-OK   - first delivery changed the balance to 125.0000
-OK   - duplicate delivery left the balance at 125.0000
-OK   - Redis contains the idempotency key
-Manual webhook verification passed.
+Plan a Reset simulation button for frontend/src/app/app.html and
+frontend/src/app/app.ts. It should restore the simulator inputs and results
+to their initial state without clearing workshop progress. Consider processing
+state, accessibility, and tests. Do not write code yet.
 ```
 
-The final database row should show a balance of `125.0000` and a version of
-`1`. A version of `1` confirms that only the first delivery updated the row.
+Review the proposed changes. Check that they preserve workshop progress,
+account for a simulation in progress, and make the new button usable with a
+keyboard.
 
-### Why this step matters
+## 4. Review frontend boundaries
 
-`WebhookControllerTest` uses temporary Testcontainers instances that are
-separate from the local development database and Redis service. A green test
-suite does not populate or verify the Compose services running on your machine.
+Before editing, note the following:
 
-The manual script verifies the boundaries that the integration test alone does
-not make visible to the participant:
+- Amount validation accepts positive values with at most two decimal places.
+- The model uses integer fixed-point arithmetic and four-decimal half-up
+  rounding; the displayed exchange rates are illustrative.
+- Workshop progress is stored in the browser. Storage and clipboard errors
+  are surfaced to the user.
+- Simulation inputs represent hypothetical outcomes, not real requests or
+  authentication checks.
 
-- The packaged application starts successfully from the current source.
-- Spring Boot connects to the local Postgres and Redis services.
-- The sender and server calculate the same HMAC over the exact request body.
-- The controller acknowledges the request before asynchronous ledger work
-  completes.
-- The balance update is persisted in the local database.
-- Redis retains the idempotency key.
-- A real duplicate HTTP delivery is acknowledged but not applied twice.
+## 5. Build and test the optional exercise
 
-The application and its dependencies remain running after the script finishes.
-You can inspect the final account directly:
+In Copilot Agent Mode, use the plan to implement a reset button:
+
+```text
+Implement a Reset simulation button in frontend/src/app/app.html and
+frontend/src/app/app.ts. Restore COMPLETED, 25.00 USD, valid signature on,
+duplicate off, and the waiting pipeline; clear the result without changing
+workshop progress. Disable reset while processing. Add focused tests in
+frontend/src/app/app.spec.ts, then run npm test -- --watch=false and
+npm run build from frontend. Keep the simulation browser-only.
+```
+
+Review the changes and run:
 
 ```bash
-docker compose exec -T postgres psql \
-  -U workshop \
-  -d payout_workshop \
-  -c "SELECT account_id, currency, balance, version
-      FROM account_balance
-      WHERE account_id = 'acct-manual-1';"
+npm test -- --watch=false
+npm run build -- --base-href /payout-copilot-workshop/
 ```
 
-Application logs are available at:
+Confirm that reset affects only the simulator, that the button cannot be
+used while processing, and that the workshop progress is unchanged.
 
-```bash
-tail -f .run/payout-service.log
-```
+## 6. Practice debugging
 
-When you are finished, stop the local services gracefully:
+In your own working branch, choose one challenge. Introduce the defect,
+reproduce it, and ask Copilot to repair it with a regression test. Do not
+publish the intentional defect.
 
-```bash
-./scripts/dev-down.sh
-```
+- **Currency rounding:** remove the rounding adjustment in `simulation.ts`.
+  The 25.00 GBP example should round to 131.6456 USD, not 131.6455 USD.
+  Use the conversion tests to locate and fix the calculation.
+- **Saved progress:** skip the `saveProgress` call in `toggleStep` in `app.ts`.
+  Mark a step complete and reload; use the progress persistence test to locate
+  and fix the missing save.
 
-## 6. Debugging lab
+## Manual checks
 
-Once you're green, pick one:
+1. Select COMPLETED, 25.00 USD, a valid simulated signature, and no duplicate.
+   Run the model and confirm the example balance changes from 100.0000 to
+   125.0000 USD.
+2. Select duplicate delivery and run it again. The model assumes the same
+   event was processed already and displays 125.0000 USD unchanged.
+3. Mark a workshop step complete, reload, and confirm the selection persists.
+4. Open the architecture map and follow a source link. On the published
+   workshop, it should point to the commit used for that deployment.
 
-**Signature bypass:**
-```
-Refactor SignatureVerifier to compare the computed and provided signatures
-using String#equals instead of a constant-time comparison.
-```
-Then:
-```
-Security review flagged a timing-attack risk in our signature comparison.
-Find it and fix it, and add a test that would have caught this.
-```
-
-**Idempotency race condition:**
-```
-Refactor IdempotencyService#tryAcquire to first check if the key exists with
-a GET, and only call SET if it's absent, instead of using an atomic
-setIfAbsent call.
-```
-Then:
-```
-This webhook occasionally double-credits a payout when payout redelivers the
-same event within milliseconds of the first delivery. Write a test that fires
-two concurrent requests with the same payload, reproduce the bug, and fix it.
-```
-
-## Done criteria
-
-- `./mvnw test` is green.
-- You can explain, in one sentence each: why the signature comparison must be
-  constant-time, and why the idempotency lock must be a single atomic
-  operation.
+The [frontend README](../frontend/README.md) describes the source layout,
+simulation semantics, and Pages deployment.

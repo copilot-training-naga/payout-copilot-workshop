@@ -1,0 +1,880 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="topbar">
+  <button
+    class="icon-button menu-button"
+    type="button"
+    (click)="toggleMenu()"
+    aria-label="Open workshop navigation"
+    [attr.aria-expanded]="menuOpen()"
+    title="Open navigation"
+  >
+    ☰
+  </button>
+  <a class="brand" href="#overview" aria-label="Angular Payout Lab home">
+    <span class="brand-mark" aria-hidden="true">P</span>
+    <span>
+      <strong>Angular Payout Lab</strong>
+      <small>GitHub Copilot workshop</small>
+    </span>
+  </a>
+  <div class="topbar-actions">
+    <div class="progress-compact" aria-label="Workshop progress">
+      <span>{{ completedSteps().size }} of 6 complete</span>
+      <span class="progress-track"
+        ><span [style.width.%]="(completedSteps().size / 6) * 100"></span
+      ></span>
+    </div>
+    <a
+      class="button button-quiet hide-mobile"
+      [href]="sourceTreeUrl"
+      target="_blank"
+      rel="noreferrer"
+      >Frontend source <span aria-hidden="true">↗</span></a
+    >
+  </div>
+</header>
+
+<div class="app-shell">
+  <aside class="sidebar" data-sidebar aria-label="Workshop navigation">
+    <div class="sidebar-heading">Workshop path</div>
+    <nav>
+      <a
+        class="nav-link"
+        [class.active]="activeSection() === 'overview'"
+        href="#overview"
+        (click)="navigate('overview')"
+        ><span class="nav-icon">⌂</span><span>Overview</span></a
+      >
+      @for (label of stepLabels; track $index; let step = $index) {
+        <a
+          class="nav-link"
+          [class.active]="activeSection() === 'step-' + (step + 1)"
+          [href]="'#step-' + (step + 1)"
+          (click)="navigate('step-' + (step + 1))"
+          ><span class="step-number">{{ step + 1 }}</span
+          ><span>{{ label }}</span
+          ><span class="step-state" [class.complete]="completedSteps().has(step + 1)">{{
+            completedSteps().has(step + 1) ? '✓' : '○'
+          }}</span></a
+        >
+      }
+    </nav>
+
+    <div class="sidebar-heading tools-heading">Explore</div>
+    <nav>
+      @for (item of exploreLinks; track item.id) {
+        <a
+          class="nav-link"
+          [class.active]="activeSection() === item.id"
+          [href]="'#' + item.id"
+          (click)="navigate(item.id)"
+          ><span class="nav-icon">{{ item.icon }}</span
+          ><span>{{ item.label }}</span></a
+        >
+      }
+    </nav>
+  </aside>
+  <button
+    class="sidebar-scrim"
+    (click)="toggleMenu()"
+    type="button"
+    aria-label="Close workshop navigation"
+  ></button>
+
+  <main id="main-content" class="main-content">
+    <section id="overview" class="section overview-section">
+      <div class="repo-breadcrumb">
+        <span class="repo-icon" aria-hidden="true">◈</span> copilot-training-naga /
+        <strong>payout-copilot-workshop</strong> <span class="visibility">Public</span>
+      </div>
+
+      <div class="overview-grid">
+        <div class="overview-copy">
+          <div class="eyebrow">HANDS-ON LAB · <span class="preserve-case">Angular</span></div>
+          <h1>Build with Angular.<br /><span>Learn by doing.</span></h1>
+          <p>
+            Explore a browser-only payout simulator and use GitHub Copilot to plan, build, and test
+            a standalone Angular application.
+          </p>
+          <div class="button-row">
+            <a class="button button-primary" href="#step-1"
+              ><span aria-hidden="true">▶</span> Start the lab</a
+            >
+            <a class="button button-secondary" href="#architecture"
+              ><span aria-hidden="true">⌘</span> View architecture</a
+            >
+          </div>
+        </div>
+
+        <div class="event-visual" aria-label="Example completed payout simulation">
+          <div class="visual-header">
+            <span><span class="pulse-dot"></span> Simulation preview</span>
+            <span class="status-chip success">COMPLETED</span>
+          </div>
+          <div class="amount-display"><span>$</span>25.00 <small>USD</small></div>
+          <div class="account-route">
+            <div><small>MODEL</small><strong>Sample payout</strong></div>
+            <span class="route-line" aria-hidden="true">••••••▶</span>
+            <div><small>RUNS IN</small><strong>Your browser</strong></div>
+          </div>
+          <div class="visual-result">
+            <span>Example balance</span>
+            <strong>$100.00 <span aria-hidden="true">→</span> $125.00</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="acceptance-strip" aria-label="Lab acceptance criteria">
+        <div>
+          <span class="metric-icon blue">TS</span
+          ><span><strong>Explore</strong><small>Angular components</small></span>
+        </div>
+        <div>
+          <span class="metric-icon teal">SIG</span
+          ><span><strong>Model</strong><small>Signals and forms</small></span>
+        </div>
+        <div>
+          <span class="metric-icon amber">TEST</span
+          ><span><strong>Test</strong><small>Frontend behavior</small></span>
+        </div>
+        <div>
+          <span class="metric-icon green">GH</span
+          ><span><strong>Publish</strong><small>GitHub Pages</small></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section lab-section" aria-labelledby="lab-path-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Your path</div>
+          <h2 id="lab-path-title">Six steps to an Angular feature</h2>
+        </div>
+        <button
+          class="button button-quiet"
+          type="button"
+          (click)="resetProgress()"
+          title="Reset progress"
+        >
+          <span aria-hidden="true">↺</span> Reset progress
+        </button>
+      </div>
+
+      <article id="step-1" class="lab-step" [class.completed]="completedSteps().has(1)">
+        <div class="step-rail"><span>1</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">SETUP · 10 MIN</span>
+              <h3>Start the Angular app</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(1)"
+              [attr.aria-pressed]="completedSteps().has(1)"
+            >
+              {{ completeLabel(1) }}
+            </button>
+          </div>
+          <p>
+            Install Git and Node.js 24.15 or later in the 24 LTS series with npm. From a new clone,
+            check out the source revision used by this site, install the frontend dependencies, and
+            start the app.
+          </p>
+          <div class="command-block">
+            <div class="command-title">
+              <span>Terminal</span
+              ><button
+                type="button"
+                class="copy-button"
+                (click)="copyText(setupCommand)"
+                title="Copy commands"
+              >
+                <span aria-hidden="true">⧉</span> Copy
+              </button>
+            </div>
+            <pre><code>{{ setupCommand }}</code></pre>
+          </div>
+          <div class="done-when">
+            <strong>Done when</strong
+            ><span
+              >The Angular app is visible at <code>http://localhost:4200</code>. If you already have
+              a clone, fetch the source revision before creating your own branch.</span
+            >
+          </div>
+        </div>
+      </article>
+
+      <article id="step-2" class="lab-step" [class.completed]="completedSteps().has(2)">
+        <div class="step-rail"><span>2</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">EXPLORE · 10 MIN</span>
+              <h3>Read the frontend code and tests</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(2)"
+              [attr.aria-pressed]="completedSteps().has(2)"
+            >
+              {{ completeLabel(2) }}
+            </button>
+          </div>
+          <p>
+            Open the component, template, and simulator tests. In another terminal, run the tests
+            from the frontend directory to establish a passing baseline before changing anything.
+          </p>
+          <div class="file-list">
+            <a [href]="sourceFileUrl('frontend/src/app/app.ts')" target="_blank" rel="noreferrer">
+              <span class="file-icon">TS</span
+              ><span><strong>app.ts</strong><small>Component and signals</small></span
+              ><span>↗</span>
+            </a>
+            <a [href]="sourceFileUrl('frontend/src/app/app.html')" target="_blank" rel="noreferrer">
+              <span class="file-icon">#</span
+              ><span><strong>app.html</strong><small>Template and bindings</small></span
+              ><span>↗</span>
+            </a>
+            <a
+              [href]="sourceFileUrl('frontend/src/app/simulation.ts')"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span class="file-icon">FX</span
+              ><span><strong>simulation.ts</strong><small>Browser-only model</small></span
+              ><span>↗</span>
+            </a>
+            <a
+              [href]="sourceFileUrl('frontend/src/app/simulation.spec.ts')"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span class="file-icon shield">✓</span
+              ><span><strong>simulation.spec.ts</strong><small>Model tests</small></span
+              ><span>↗</span>
+            </a>
+          </div>
+          <div class="test-grid">
+            <span><i class="test-dot red"></i> Invalid simulated signature → rejected</span>
+            <span><i class="test-dot blue"></i> Completed payout → balance updated</span>
+            <span><i class="test-dot teal"></i> Currency conversion → rounded result</span>
+            <span><i class="test-dot amber"></i> Duplicate → no second credit</span>
+          </div>
+          <div class="command-block compact">
+            <div class="command-title">
+              <span>Terminal</span
+              ><button
+                type="button"
+                class="copy-button"
+                (click)="copyText(testCommand)"
+                title="Copy command"
+              >
+                <span aria-hidden="true">⧉</span> Copy
+              </button>
+            </div>
+            <pre><code>{{ testCommand }}</code></pre>
+          </div>
+          <div class="done-when">
+            <strong>Done when</strong
+            ><span
+              >The tests pass, and you can explain how the template, component, and model fit
+              together.</span
+            >
+          </div>
+        </div>
+      </article>
+
+      <article id="step-3" class="lab-step" [class.completed]="completedSteps().has(3)">
+        <div class="step-rail"><span>3</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">PLAN MODE · 15 MIN</span>
+              <h3>Plan before writing code</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(3)"
+              [attr.aria-pressed]="completedSteps().has(3)"
+            >
+              {{ completeLabel(3) }}
+            </button>
+          </div>
+          <p>
+            Ask Plan Mode to identify the implementation sequence and design risks. Review its plan
+            instead of treating it as an answer key.
+          </p>
+          <div class="prompt-block">
+            <div class="prompt-header">
+              <span><b class="copilot-mark">✦</b> Copilot prompt</span
+              ><button
+                type="button"
+                class="copy-button"
+                (click)="copyText(planPrompt)"
+                title="Copy prompt"
+              >
+                <span aria-hidden="true">⧉</span> Copy
+              </button>
+            </div>
+            <p>{{ planPrompt }}</p>
+          </div>
+          <div class="review-points">
+            <span>Does it preserve workshop progress?</span
+            ><span>Does it handle processing and keyboard access?</span>
+          </div>
+        </div>
+      </article>
+
+      <article id="step-4" class="lab-step" [class.completed]="completedSteps().has(4)">
+        <div class="step-rail"><span>4</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">GUARDRAILS · 5 MIN</span>
+              <h3>Review the frontend boundaries</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(4)"
+              [attr.aria-pressed]="completedSteps().has(4)"
+            >
+              {{ completeLabel(4) }}
+            </button>
+          </div>
+          <p>
+            Review how the model handles amounts and how the component reports progress and errors.
+            Keep the simulation local to the browser.
+          </p>
+          <div class="file-list">
+            <a
+              [href]="sourceFileUrl('frontend/src/app/simulation.ts')"
+              target="_blank"
+              rel="noreferrer"
+              ><span class="file-icon">#</span
+              ><span><strong>simulation.ts</strong><small>Fixed-point model</small></span
+              ><span>↗</span></a
+            >
+            <a
+              [href]="sourceFileUrl('frontend/src/app/app.spec.ts')"
+              target="_blank"
+              rel="noreferrer"
+              ><span class="file-icon shield">✓</span
+              ><span><strong>app.spec.ts</strong><small>Component behavior</small></span
+              ><span>↗</span></a
+            >
+          </div>
+          <div class="done-when">
+            <strong>Look for</strong
+            ><span
+              >Input validation, fixed-point money, accessible controls, and visible storage or
+              clipboard errors.</span
+            >
+          </div>
+        </div>
+      </article>
+
+      <article
+        id="step-5"
+        class="lab-step featured-step"
+        [class.completed]="completedSteps().has(5)"
+      >
+        <div class="step-rail"><span>5</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">AGENT MODE · 25 MIN</span>
+              <h3>Build, test, and iterate</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(5)"
+              [attr.aria-pressed]="completedSteps().has(5)"
+            >
+              {{ completeLabel(5) }}
+            </button>
+          </div>
+          <p>
+            Try the optional reset-button exercise. Give Agent Mode the outcome and constraints,
+            review its changes, and run the frontend checks.
+          </p>
+          <div class="prompt-block">
+            <div class="prompt-header">
+              <span><b class="copilot-mark">✦</b> Copilot prompt</span
+              ><button
+                type="button"
+                class="copy-button"
+                (click)="copyText(agentPrompt)"
+                title="Copy prompt"
+              >
+                <span aria-hidden="true">⧉</span> Copy
+              </button>
+            </div>
+            <p>{{ agentPrompt }}</p>
+          </div>
+          <div class="implementation-flow" aria-label="Implementation components">
+            <span>app.html</span><b>+</b><span>app.ts</span><b>+</b><span>simulation.ts</span
+            ><b>+</b><span>app.spec.ts</span>
+          </div>
+        </div>
+      </article>
+
+      <article id="step-6" class="lab-step" [class.completed]="completedSteps().has(6)">
+        <div class="step-rail"><span>6</span></div>
+        <div class="step-content">
+          <div class="step-heading">
+            <div>
+              <span class="step-label">DEBUG · 15 MIN</span>
+              <h3>Debug a frontend defect</h3>
+            </div>
+            <button
+              class="complete-button"
+              type="button"
+              (click)="toggleStep(6)"
+              [attr.aria-pressed]="completedSteps().has(6)"
+            >
+              {{ completeLabel(6) }}
+            </button>
+          </div>
+          <p>
+            In your own working branch, choose a challenge. Introduce the defect, then start a fresh
+            debugging conversation to reproduce it, add or run a regression test, and repair it.
+          </p>
+          <div class="challenge-grid">
+            <article class="challenge">
+              <div>
+                <span class="issue-label security">ACCURACY</span
+                ><span class="issue-number">01</span>
+              </div>
+              <h4>Currency rounding</h4>
+              <p>
+                Change the rounding calculation in <code>simulation.ts</code>, then ask Copilot to
+                find why a converted balance is wrong.
+              </p>
+              <button
+                type="button"
+                class="button button-secondary challenge-button"
+                (click)="roundingHint.set(!roundingHint())"
+                [attr.aria-expanded]="roundingHint()"
+                aria-controls="rounding-hint"
+              >
+                {{ roundingHint() ? 'Hide hint' : 'Reveal hint' }}
+              </button>
+              <div class="hint" id="rounding-hint" [hidden]="!roundingHint()">
+                Compare the EUR and GBP examples in <code>simulation.spec.ts</code> and check the
+                integer rounding before formatting four decimal places.
+              </div>
+            </article>
+            <article class="challenge">
+              <div>
+                <span class="issue-label reliability">STATE</span
+                ><span class="issue-number">02</span>
+              </div>
+              <h4>Progress is not saved</h4>
+              <p>
+                Skip the save call in <code>toggleStep</code>, then reload the page and ask Copilot
+                to find the regression.
+              </p>
+              <button
+                type="button"
+                class="button button-secondary challenge-button"
+                (click)="progressHint.set(!progressHint())"
+                [attr.aria-expanded]="progressHint()"
+                aria-controls="progress-hint"
+              >
+                {{ progressHint() ? 'Hide hint' : 'Reveal hint' }}
+              </button>
+              <div class="hint" id="progress-hint" [hidden]="!progressHint()">
+                Trace <code>toggleStep</code> to <code>saveProgress</code> and check the persistence
+                test in <code>app.spec.ts</code>.
+              </div>
+            </article>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="simulator" class="section simulator-section" aria-labelledby="simulator-title">
+      <div class="section-heading light-heading">
+        <div>
+          <div class="eyebrow">Interactive model</div>
+          <h2 id="simulator-title">Try the Angular simulation</h2>
+          <p>
+            Explore the form, signals, and result model. This simulation stays in your browser and
+            does not send a real payment or verify a signature.
+          </p>
+        </div>
+        <span class="simulation-badge">Browser simulation</span>
+      </div>
+      <div class="simulator-layout">
+        <form class="simulator-controls" (ngSubmit)="runSimulation()">
+          <fieldset [disabled]="processing()">
+            <legend>Status</legend>
+            <div class="segmented-control">
+              <label
+                ><input type="radio" name="status" value="PENDING" [(ngModel)]="status" /><span
+                  >PENDING</span
+                ></label
+              ><label
+                ><input type="radio" name="status" value="COMPLETED" [(ngModel)]="status" /><span
+                  >COMPLETED</span
+                ></label
+              ><label
+                ><input type="radio" name="status" value="FAILED" [(ngModel)]="status" /><span
+                  >FAILED</span
+                ></label
+              >
+            </div>
+          </fieldset>
+          <div class="field-row">
+            <label
+              >Amount
+              <span class="input-wrap"
+                ><span>$</span
+                ><input
+                  name="amount"
+                  type="text"
+                  inputmode="decimal"
+                  required
+                  [(ngModel)]="amount"
+                  [disabled]="processing()"
+                  [attr.aria-invalid]="!!amountError()"
+                  aria-describedby="amount-error" /></span></label
+            ><label
+              >Currency
+              <select name="currency" [(ngModel)]="currency" [disabled]="processing()">
+                <option>USD</option>
+                <option>EUR</option>
+                <option>GBP</option>
+              </select></label
+            >
+          </div>
+          <p id="amount-error" class="input-error" [hidden]="!amountError()">{{ amountError() }}</p>
+          <div class="toggle-row">
+            <span><strong>Valid signature</strong><small>Choose the simulated outcome</small></span
+            ><label class="switch"
+              ><input
+                name="validSignature"
+                type="checkbox"
+                [(ngModel)]="validSignature"
+                [disabled]="processing()"
+                aria-label="Valid signature" /><span></span
+            ></label>
+          </div>
+          <div class="toggle-row">
+            <span
+              ><strong>Duplicate delivery</strong
+              ><small>Assume it was processed already</small></span
+            ><label class="switch"
+              ><input
+                name="duplicate"
+                type="checkbox"
+                [(ngModel)]="duplicate"
+                [disabled]="processing()"
+                aria-label="Duplicate delivery" /><span></span
+            ></label>
+          </div>
+          <button
+            class="button simulator-button"
+            type="submit"
+            [disabled]="processing() || !!amountError()"
+          >
+            <span aria-hidden="true">▶</span>
+            {{ processing() ? 'Running simulation...' : 'Run simulation' }}
+          </button>
+          <p class="simulation-note">
+            Each run models a separate delivery starting at 100 USD. Duplicate assumes the matching
+            event was already processed. Illustrative FX: 1 USD = 0.92 EUR / 0.79 GBP.
+          </p>
+        </form>
+
+        <div class="pipeline-panel" aria-live="polite">
+          <div class="pipeline">
+            @for (node of nodes(); track node.name) {
+              <div [class]="'pipeline-node ' + node.state">
+                <span>{{ $index + 1 }}</span><strong>{{ node.name }}</strong
+                ><small>{{ node.label }}</small>
+              </div>
+              @if (!$last) {
+                <i></i>
+              }
+            }
+          </div>
+          <div class="simulation-result">
+            @if (result(); as result) {
+              <div class="result-grid">
+                <div>
+                  <span>Simulated response</span
+                  ><strong [class]="result.tone">{{ result.status }}</strong>
+                </div>
+                <div>
+                  <span>Signature</span
+                  ><strong [class]="result.tone">{{ result.signature }}</strong>
+                </div>
+                <div>
+                  <span>Duplicate check</span
+                  ><strong
+                    [class]="result.idempotency.includes('Duplicate') ? 'warn' : result.tone"
+                    >{{ result.idempotency }}</strong
+                  >
+                </div>
+                <div>
+                  <span>Balance update</span
+                  ><strong [class]="result.ledger.includes('Skipped') ? 'warn' : result.tone">{{
+                    result.ledger
+                  }}</strong>
+                </div>
+                <div>
+                  <span>Balance</span><strong>{{ result.balance }}</strong>
+                </div>
+                <div><span>Data source</span><strong>Educational model</strong></div>
+              </div>
+            } @else {
+              <div class="empty-result">
+                <span>{{ processing() ? '•••' : '▶' }}</span><strong>{{
+                  processing() ? 'Running the model' : 'Ready to simulate'
+                }}</strong
+                ><small>{{
+                  processing()
+                    ? 'Calculating the simulated outcome.'
+                    : 'Choose the inputs and select Run simulation.'
+                }}</small>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="architecture"
+      class="section architecture-section"
+      aria-labelledby="architecture-title"
+    >
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Frontend map</div>
+          <h2 id="architecture-title">Inside the Angular application</h2>
+          <p>Select an area to inspect its responsibility and open the matching source file.</p>
+        </div>
+      </div>
+      <div class="architecture-flow" aria-label="Architecture components">
+        @for (component of architectures; track component.id) {
+          <button
+            class="architecture-node"
+            [class.active]="selectedArchitecture().id === component.id"
+            [attr.aria-pressed]="selectedArchitecture().id === component.id"
+            type="button"
+            (click)="selectedArchitecture.set(component)"
+          >
+            <span [class]="'architecture-icon ' + component.color">{{
+              component.icon
+            }}</span><strong>{{ component.label }}</strong
+            ><small>{{ component.subtitle }}</small>
+          </button>
+          @if (!$last) {
+            <span class="architecture-arrow">→</span>
+          }
+        }
+      </div>
+      <div class="architecture-detail" aria-live="polite">
+        <div>
+          <span class="detail-label">RESPONSIBILITY</span
+          ><strong>{{ selectedArchitecture().responsibility }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">WATCH FOR</span
+          ><strong>{{ selectedArchitecture().risk }}</strong>
+        </div>
+        <div>
+          <span class="detail-label">SOURCE</span
+          ><a [href]="sourceFileUrl(selectedArchitecture().path)" target="_blank" rel="noreferrer"
+            >{{ selectedArchitecture().file }} ↗</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <section id="manual" class="section manual-section" aria-labelledby="manual-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Hands-on checks</div>
+          <h2 id="manual-title">Try it locally</h2>
+          <p>
+            Run the Angular app, exercise the simulator, and use another terminal in the frontend
+            directory to run the checks used for GitHub Pages.
+          </p>
+        </div>
+      </div>
+      <div class="manual-layout">
+        <div class="verification-list">
+          <div>
+            <span>1</span>
+            <p>
+              <strong>Start the app</strong
+              ><small>Run npm start from frontend and open localhost:4200</small>
+            </p>
+          </div>
+          <div>
+            <span>2</span>
+            <p>
+              <strong>Choose a payout</strong
+              ><small>COMPLETED · 25.00 USD · valid signature · not duplicate</small>
+            </p>
+          </div>
+          <div>
+            <span>3</span>
+            <p>
+              <strong>Run the simulation</strong
+              ><small>Example balance changes from 100.0000 to 125.0000 USD</small>
+            </p>
+          </div>
+          <div>
+            <span>4</span>
+            <p>
+              <strong>Try a duplicate</strong
+              ><small>Turn on duplicate delivery; the model skips a second credit</small>
+            </p>
+          </div>
+          <div>
+            <span>5</span>
+            <p>
+              <strong>Check progress</strong
+              ><small>Mark a step complete, reload, and confirm it stays complete</small>
+            </p>
+          </div>
+        </div>
+        <div class="manual-command">
+          <div class="terminal-window">
+            <div class="terminal-bar">
+              <span><i></i><i></i><i></i></span><strong>frontend checks</strong>
+            </div>
+            <pre><code>{{ verificationCommand }}</code></pre>
+          </div>
+          <button
+            class="button button-primary full-width"
+            type="button"
+            (click)="copyText(verificationCommand)"
+          >
+            <span aria-hidden="true">⧉</span> Copy frontend checks
+          </button>
+          <p class="data-warning">
+            <span aria-hidden="true">!</span> The simulator is an educational model. Running it does
+            not send an API request or move money.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="troubleshooting"
+      class="section troubleshooting-section"
+      aria-labelledby="troubleshooting-title"
+    >
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">Fast recovery</div>
+          <h2 id="troubleshooting-title">Common workshop issues</h2>
+        </div>
+      </div>
+      <div class="accordion" data-accordion>
+        <details>
+          <summary>
+            <span class="error-code">NODE</span
+            ><span
+              ><strong>Unsupported Node.js version</strong
+              ><small>The Angular tools cannot start.</small></span
+            ><span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>
+              Install Node.js 24.15 or later in the 24 LTS series, open a new terminal, and check
+              the active version.
+            </p>
+            <code>node --version</code>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code red-code">NPM</span
+            ><span
+              ><strong>Dependencies did not install</strong
+              ><small>The install command fails before the app starts.</small></span
+            ><span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>
+              Confirm your Node.js version and network connection, then run the lockfile install
+              from the frontend directory.
+            </p>
+            <code>cd frontend &amp;&amp; npm ci</code>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code amber-code">4200</span
+            ><span
+              ><strong>Port 4200 is already in use</strong
+              ><small>Another process is using the development port.</small></span
+            ><span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>Run the app on another port from the frontend directory, then open that URL.</p>
+            <code>npm start -- --port 4201</code>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code teal-code">UI</span
+            ><span
+              ><strong>Progress or copying is unavailable</strong
+              ><small>Browser storage or clipboard access is blocked.</small></span
+            ><span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>
+              Allow storage and clipboard access for this site. Use HTTPS or localhost for clipboard
+              access.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="error-code">PATH</span>
+            <span
+              ><strong>Pages assets do not load</strong
+              ><small>The build uses the wrong base path.</small></span
+            >
+            <span class="chevron">⌄</span>
+          </summary>
+          <div>
+            <p>Build from the frontend directory with the repository path as the base URL.</p>
+            <code>npm run build -- --base-href /payout-copilot-workshop/</code>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <strong>Angular Payout Lab</strong
+        ><span>Built for learning. The simulator uses example data only.</span>
+      </div>
+      <div>
+        <a [href]="sourceFileUrl('docs/lab-guide.md')" target="_blank" rel="noreferrer"
+          >Workshop guide ↗</a
+        ><a [href]="sourceFileUrl('frontend/README.md')" target="_blank" rel="noreferrer"
+          >Frontend README ↗</a
+        ><a [href]="sourceTreeUrl" target="_blank" rel="noreferrer">Frontend source ↗</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<div class="toast" [class.visible]="toast()" role="status" aria-live="polite">{{ toast() }}</div>
