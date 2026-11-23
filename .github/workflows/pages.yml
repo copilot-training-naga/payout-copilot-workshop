@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v-nagarajumatta-angular-workshop-site
     paths:
       - "frontend/**"
       - ".github/workflows/pages.yml"

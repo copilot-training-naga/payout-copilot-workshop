@@ -23,7 +23,8 @@ npm start
 Open `http://localhost:4200`. Run `npm test -- --watch=false` for frontend tests
 and `npm run build -- --base-href /payout-copilot-workshop/` for a Pages build.
 The Pages workflow installs, tests, builds, and deploys on frontend changes
-pushed to `main`, or when manually dispatched. Pages must use **GitHub Actions**
+pushed to `main` or `v-nagarajumatta-angular-workshop-site`, or when manually
+dispatched. Pages must use **GitHub Actions**
 as its publishing source. Images and icons live in `frontend/public/assets/`.
 
 A hands-on GitHub Copilot workshop for backend engineers
