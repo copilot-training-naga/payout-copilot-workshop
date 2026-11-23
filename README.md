@@ -1,8 +1,30 @@
 # Payout Copilot Workshop — Payout Webhook Service
 
-[Open the interactive workshop](https://srvchawla.github.io/payout-copilot-workshop/#overview)
+[Open the interactive workshop](https://copilot-training-naga.github.io/payout-copilot-workshop/#overview)
 
-[![Payout Webhook Lab overview](site/assets/workshop-overview.jpg)](https://srvchawla.github.io/payout-copilot-workshop/#overview)
+[![Payout Webhook Lab overview](frontend/public/assets/workshop-overview.jpg)](https://copilot-training-naga.github.io/payout-copilot-workshop/#overview)
+
+## Angular workshop companion
+
+The Angular frontend in [`frontend/`](frontend/) preserves the reference
+workshop's responsive layout, six-step progress tracking, webhook simulator,
+architecture explorer, and troubleshooting guide. Repository links point to
+this repository. The simulator is an educational browser-only model, not a
+connection to the Spring Boot backend.
+
+With Node.js 24 LTS installed:
+
+```bash
+cd frontend
+npm ci
+npm start
+```
+
+Open `http://localhost:4200`. Run `npm test -- --watch=false` for frontend tests
+and `npm run build -- --base-href /payout-copilot-workshop/` for a Pages build.
+The Pages workflow installs, tests, builds, and deploys on frontend changes
+pushed to `main`, or when manually dispatched. Pages must use **GitHub Actions**
+as its publishing source. Images and icons live in `frontend/public/assets/`.
 
 A hands-on GitHub Copilot workshop for backend engineers
 (Java 17 / Spring Boot 3) built around a realistic scenario: ingesting payout
